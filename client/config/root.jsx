@@ -11,6 +11,8 @@ import Main from '../components/main'
 import D3 from '../components/d3'
 import D3LineCircle from '../components/d3linecircle'
 import D3Path from '../components/d3path'
+import D3Axies from '../components/d3axies'
+import D3DoubleAxies from '../components/d3doubleaxies'
 
 const OnlyAnonymousRoute = ({ component: Component, ...rest }) => {
   const { user, token } = useSelector((s) => s.auth)
@@ -38,6 +40,8 @@ const Root = () => {
             <Route exact path="/d3" component={() => <D3 />} />
             <Route exact path="/d3lc" component={() => <D3LineCircle />} />
             <Route exact path="/d3path" component={() => <D3Path />} />
+            <Route exact path="/d3axies" component={() => <D3Axies />} />
+            <Route exact path="/d3doubleaxies" component={() => <D3DoubleAxies />} />
             <OnlyAnonymousRoute exact path="/anonymous" component={() => <Main />} />
             <PrivateRoute exact path="/private" component={() => <Main />} />
           </Switch>
