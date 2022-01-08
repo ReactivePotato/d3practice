@@ -1,0 +1,82 @@
+import React, { useState, useEffect } from 'react'
+import {
+  select, axisBottom, axisLeft, max, min
+} from 'd3'
+import { scaleLinear, scaleTime } from 'd3-scale'
+import source from './d3source/source.json'
+
+const X_MARGIN = 20
+const Y_MARGIN = 50
+
+const DEF_WIDTH = 1200
+const DEF_HEIGHT = 400
+
+const data = source.map((it) => ({
+  date: new Date(it.lastUpdatedAtSource),
+  infected: it.infected,
+  recovered: it.recovered
+}))
+
+const drawAxises = ({ field, height, width }) => {
+  const getNewAxis = (cx) => select('#chart').append('g').attr('class', cx)
+
+  const scaleY = scaleLinear()
+    .domain([min(data.map((it) => it[field])), max(data.map((it) => it[field]))])
+    .range([height - Y_MARGIN * 2, Y_MARGIN])
+
+  const scaleX = scaleTime()
+    .domain([min(data.map((it) => it.date)), max(data.map((it) => it.date))])
+    .range([X_MARGIN, width - 2 * X_MARGIN])
+
+  const yAx = select('.y-axis')
+  const xAx = select('.x-axis')
+
+  const YAxis = axisLeft().scale(scaleY)
+  const XAxis = axisBottom().scale(scaleX);
+
+  (yAx.empty() ? getNewAxis('y-axis') : yAx)
+    .transition()
+    .attr('transform', `translate(${2 * X_MARGIN}, ${Y_MARGIN})`)
+    .call(YAxis);
+
+  (xAx.empty() ? getNewAxis('x-axis') : xAx)
+    .transition()
+    .attr('transform', `translate(${X_MARGIN}, ${height - Y_MARGIN})`)
+    .call(XAxis)
+
+  return data.length
+}
+
+const drawLine = ({ width, height, field }) => {
+  drawAxises({ width, height, field })
+}
+
+const D3DoubleAxies = () => {
+  const [width] = useState(DEF_WIDTH)
+  const [height] = useState(DEF_HEIGHT)
+  const [field, toggle] = useState('infected')
+  useEffect(() => {
+    drawLine({ width, height, field })
+  }, [field])
+  return (
+    <div>
+      <div className="min-w-screen min-h-screen bg-gray-900 flex flex-wrap content-around justify-center px-5 py-5">
+        <div className="bg-indigo-600 text-white rounded shadow-xl py-5 px-5 w-full lg:w-10/12 xl:w-3/4">
+          <button
+            type="button"
+            onClick={() => {
+              toggle(field === 'infected' ? 'recovered' : 'infected')
+            }}
+          >
+            {field}
+          </button>
+          <div className="flex items-end">
+            <svg width={width} height={height} id="chart" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default D3DoubleAxies
